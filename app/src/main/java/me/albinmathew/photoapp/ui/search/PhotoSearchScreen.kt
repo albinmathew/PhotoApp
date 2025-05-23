@@ -1,10 +1,25 @@
 package me.albinmathew.photoapp.ui.search
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.* // Use androidx.compose.material3.* for M3
+import androidx.compose.foundation.lazy.grid.itemsIndexed // Changed from items
+import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme // For MaterialTheme.colors.error
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import me.albinmathew.photoapp.app.api.ImageData
+import me.albinmathew.photoapp.domain.model.Photo // Changed from ImageData
 
 @Composable
 fun PhotoSearchScreen(
@@ -73,7 +88,7 @@ fun PhotoSearchScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.photos, key = { photo -> photo.id ?: photo.url_s ?: "" }) { photo ->
+                    itemsIndexed(uiState.photos, key = { index, photo -> photo.id ?: index }) { index, photo ->
                         PhotoItem(photo)
                     }
                 }
@@ -83,14 +98,14 @@ fun PhotoSearchScreen(
 }
 
 @Composable
-fun PhotoItem(photo: ImageData) {
+fun PhotoItem(photo: Photo) { // Changed parameter type
     // Placeholder for how a single photo item would be displayed
     // In a real app, you'd use Glide/Coil here with a Composable image loader
     Card {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // AsyncImage(model = photo.url_s, contentDescription = photo.title) // Example with Coil
+            // AsyncImage(model = photo.url, contentDescription = photo.title) // Use photo.url
             Text(
-                text = photo.title ?: "Untitled",
+                text = photo.title, // Use photo.title (no longer needs ?: "Untitled" if non-nullable in domain model)
                 style = MaterialTheme.typography.caption, // MaterialTheme.typography.labelSmall for M3
                 modifier = Modifier.padding(4.dp)
             )

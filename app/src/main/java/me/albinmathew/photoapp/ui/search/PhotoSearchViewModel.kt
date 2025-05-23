@@ -7,14 +7,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.albinmathew.photoapp.app.api.ImageData // Assuming ImageData is the photo model
+import me.albinmathew.photoapp.domain.model.Photo // Changed from ImageData
 import me.albinmathew.photoapp.data.repository.PhotoRepository
 import javax.inject.Inject
+import java.io.IOException // Added for specific exception handling
+import com.google.gson.JsonParseException // Added for specific exception handling
 
 // Define a UI state class
 data class PhotoSearchUiState(
     val isLoading: Boolean = false,
-    val photos: List<ImageData> = emptyList(),
+    val photos: List<Photo> = emptyList(), // Changed from ImageData
     val error: String? = null,
     val currentQuery: String = ""
 )
@@ -41,16 +43,25 @@ class PhotoSearchViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
         viewModelScope.launch {
             try {
-                val response = photoRepository.searchPhotos(_uiState.value.currentQuery)
-                // Assuming response.photos.photo is the list of ImageData
+                val photosList = photoRepository.searchPhotos(_uiState.value.currentQuery)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    photos = response.photos?.photo ?: emptyList()
+                    photos = photosList // response is now List<Photo>
                 )
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to fetch photos: ${e.message}"
+                    error = "Network error: ${e.message}"
+                )
+            } catch (e: JsonParseException) { // Assuming Gson is still used for parsing by Retrofit
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Data parsing error: ${e.message}"
+                )
+            } catch (e: Exception) { // General fallback
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "An unexpected error occurred: ${e.message}"
                 )
             }
         }

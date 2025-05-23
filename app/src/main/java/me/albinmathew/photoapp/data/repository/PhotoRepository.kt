@@ -1,7 +1,7 @@
 package me.albinmathew.photoapp.data.repository
 
-import me.albinmathew.photoapp.app.api.BaseResponseDo
+import me.albinmathew.photoapp.domain.model.Photo
 
 interface PhotoRepository {
-    suspend fun searchPhotos(query: String): BaseResponseDo // Or a more domain-specific model if we were to map it
+    suspend fun searchPhotos(query: String): List<Photo>
 }
